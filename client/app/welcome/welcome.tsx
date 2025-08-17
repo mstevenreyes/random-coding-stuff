@@ -1,15 +1,26 @@
 import logoDark from "./logo-dark.svg";
 import logoLight from "./logo-light.svg";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import axios from "axios";
 
 export function Welcome() {
-  const [todoList, setTodoList] = useState< Array<{
+  const [todoList, setTodoList] = useState<Array<{
     id: number,
     task: string
   }>>([]);
   const todoListId = useRef(1);
   const selectedtodoItemId = useRef<number>(0)
+  const [backendData, setBackendData] = useState<any>([])
   
+  const fetchAPI = async () => {
+    const response = await axios.get("http://localhost:8080/api")
+    console.log(response.data.users);
+    setBackendData([...response.data.users])
+  }
+
+  useEffect(() => {
+   fetchAPI();  
+  }, [])
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
       <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
@@ -34,6 +45,9 @@ export function Welcome() {
             <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">
               To Do List App
             </p>
+            <p>{ backendData.length != 0 ? backendData.map((userId: any) => (
+              <span>{userId}</span>
+            )) : "" }</p>
             <ul>
                 { todoList.length != 0 ? todoList.map((task, index) => (
                   <li key={task.id}><input onChange={selectTodoItem} data-taskid={task.id} type="radio" name="task"/> task{task.id}</li>
